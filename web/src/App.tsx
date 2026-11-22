@@ -5,6 +5,7 @@ import { Workshop } from './screens/Workshop';
 import { Deck } from './screens/Deck';
 import { Settings } from './screens/Settings';
 import { useSync } from './state/progress';
+import { warmUp } from './runner/runner';
 
 function useHash() {
   const [h, setH] = useState(() => location.hash || '#/map');
@@ -18,6 +19,14 @@ function useHash() {
 
 export default function App() {
   const hash = useHash();
+  // wake the C# compiler in the background so the first code task doesn't wait
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const idle = (window as any).requestIdleCallback ?? ((f: () => void) => setTimeout(f, 200));
+      idle(() => warmUp());
+    }, 2500);
+    return () => clearTimeout(t);
+  }, []);
   const go = (h: string) => { location.hash = h; };
   const sync = useSync();
   const [, route, arg] = hash.split('/');
