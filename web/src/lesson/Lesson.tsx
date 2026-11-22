@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { Step, Level } from '../course/types';
 import { CodeView, highlight } from '../ui/CodeView';
-import { Icon, Sprite, HERO } from '../ui/pixel';
+import { Icon } from '../ui/pixel';
+import { X as XIcon, Check } from 'lucide-react';
+import { GameScene } from '../ui/GameScene';
+import { sceneOf } from '../screens/scene';
 import { VIZ } from '../viz/t01viz';
 import { CodeTask } from './CodeTask';
 import { warmUp } from '../runner/runner';
@@ -77,7 +80,7 @@ export function Lesson({ id, go }: { id: string; go: (h: string) => void }) {
   return (
     <div className="lesson">
       <div className="lesson-top">
-        <button className="x" onClick={() => go('#/map')} aria-label="Выйти на карту">×</button>
+        <button className="x" onClick={() => go('#/map')} aria-label="Выйти на карту"><XIcon size={18} strokeWidth={1.5} /></button>
         <div className="progress" aria-label={`Шаг ${pos + 1} из ${total}`}>
           {queue.map((_, i) => <i key={i} className={i < pos ? 'on' : i === pos ? 'cur' : ''} />)}
         </div>
@@ -87,7 +90,7 @@ export function Lesson({ id, go }: { id: string; go: (h: string) => void }) {
         <StepView step={step} ans={ans} setAns={setAns} checked={checked} pool={pool} onCodePass={() => setCodeOk(true)} />
         {checked !== null && 'why' in step && (
           <div className={'verdict ' + (checked ? 'good' : 'bad')}>
-            <h4>{checked ? 'Верно!' : 'Не совсем'}</h4>
+            <h4>{checked ? <Check size={16} strokeWidth={2} /> : <XIcon size={16} strokeWidth={2} />}{checked ? 'Верно' : 'Не совсем'}</h4>
             <div>{step.why}</div>
             {!checked && <div className="note" style={{ marginTop: 6 }}>Этот вопрос вернётся в конце урока.</div>}
           </div>
@@ -122,14 +125,14 @@ function StepView({ step, ans, setAns, checked, pool, onCodePass }: {
         <div className="term px">
           <div className="term-row">
             <div>
-              <div className="term-label">НОВЫЙ ТЕРМИН</div>
+              <div className="term-label">новое слово</div>
               <div className="term-word">{step.word}</div>
               {step.en && <div className="term-en">{step.en}</div>}
             </div>
-            <Icon name={step.icon} size={64} />
+            <span className="term-ico"><Icon name={step.icon} size={40} /></span>
           </div>
           <p className="term-def" dangerouslySetInnerHTML={{ __html: step.def }} />
-          {step.like && <div className="term-like"><span><b style={{ color: 'var(--peach)' }}>Как в жизни: </b>{step.like}</span></div>}
+          {step.like && <div className="term-like"><strong>Как в жизни. </strong>{step.like}</div>}
         </div>
       );
     case 'quiz': case 'predict': {
@@ -204,38 +207,21 @@ function Done({ level, mistakes, go }: { level: Level; mistakes: number; go: (h:
   const terms = level.steps.filter(s => s.k === 'term').length;
   return (
     <div className="lesson done-screen step">
-      {level.unlocks === 'hero' ? (
-        <div className="unlock">
-          <div className="kicker" style={{ textAlign: 'center' }}>В игре появился герой</div>
-          <div className="hero-pop"><Sprite rows={HERO} size={128} /></div>
-          <div className="hero-name">{p.hero.name ?? 'Герой'}</div>
-          <div className="hero-hp"><span style={{ width: '100%' }} /></div>
-        </div>
-      ) : <div className="stars" aria-hidden><Sprite rows={STAR} size={72} /></div>}
+      {level.unlocks === 'hero'
+        ? <GameScene s={sceneOf(p)} caption="герой появился в игре" />
+        : <div className="done-mark"><Check size={28} strokeWidth={2} /></div>}
       <h1 className="h1">Уровень пройден</h1>
       <p className="lead">{level.title}</p>
       <div className="reward">
         <div className="px"><div className="num">+{10 + level.steps.length * 2}</div><div className="lbl">опыта</div></div>
         {terms > 0 && <div className="px"><div className="num">+{terms}</div><div className="lbl">карточек в колоду</div></div>}
-        <div className="px"><div className="num">{mistakes}</div><div className="lbl">{mistakes === 0 ? 'ошибок. Чисто!' : 'ошибок, все исправлены'}</div></div>
+        <div className="px"><div className="num">{mistakes}</div><div className="lbl">{mistakes === 0 ? 'ошибок' : 'ошибок, все исправлены'}</div></div>
       </div>
       <div className="done-actions">
-        {nextLevel && <button className="btn wide" onClick={() => go('#/l/' + nextLevel.id)}>Следующий: {nextLevel.title}</button>}
-        <button className="btn ghost wide" onClick={() => go(level.unlocks ? '#/workshop' : '#/map')}>{level.unlocks ? 'Посмотреть в мастерской' : 'На карту'}</button>
+        {nextLevel && <button className="btn wide" onClick={() => go('#/l/' + nextLevel.id)}>Дальше: {nextLevel.title}</button>}
+        <button className="btn ghost wide" onClick={() => go(level.unlocks ? '#/workshop' : '#/map')}>{level.unlocks ? 'Открыть мастерскую' : 'На карту'}</button>
       </div>
     </div>
   );
 }
 
-const STAR = [
-  '.....yy.....',
-  '.....yy.....',
-  '....yyyy....',
-  'yyyyyyyyyyyy',
-  '.yyyyyyyyyy.',
-  '..yyyyyyyy..',
-  '..yyyyyyyy..',
-  '.yyyy..yyyy.',
-  '.yyy....yyy.',
-  'yy........yy',
-];

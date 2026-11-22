@@ -6,6 +6,7 @@ import { Deck } from './screens/Deck';
 import { Settings } from './screens/Settings';
 import { useSync } from './state/progress';
 import { warmUp } from './runner/runner';
+import { Map as MapIcon, Hammer, Layers, Settings as Gear } from 'lucide-react';
 
 function useHash() {
   const [h, setH] = useState(() => location.hash || '#/map');
@@ -33,19 +34,20 @@ export default function App() {
 
   if (route === 'l' && arg) return <Lesson key={arg} id={arg} go={go} />;
 
-  const tabs: [string, string][] = [['map', 'Карта'], ['workshop', 'Мастерская'], ['deck', 'Колода']];
+  const tabs: [string, string, typeof MapIcon][] = [['map', 'Карта', MapIcon], ['workshop', 'Мастерская', Hammer], ['deck', 'Колода', Layers]];
   return (
     <>
-      <header className="bar">
-        <button className="logo" onClick={() => go('#/map')}>C<span>#</span>Quest</button>
-        {tabs.map(([r, label]) => (
-          <button key={r} className="tab" aria-current={route === r ? 'page' : undefined} onClick={() => go('#/' + r)}>{label}</button>
+      <header className="bar"><div className="bar-in">
+        <button className="logo" onClick={() => go('#/map')}><span className="logo-mark">C#</span>Quest</button>
+        {tabs.map(([r, label, Ico]) => (
+          <button key={r} className="tab" aria-current={route === r || (!route && r === 'map') ? 'page' : undefined} onClick={() => go('#/' + r)} aria-label={label}>
+            <Ico size={16} strokeWidth={1.5} /><span className="tab-label">{label}</span>
+          </button>
         ))}
-        <button className="tab gear" aria-current={route === 'settings' ? 'page' : undefined} onClick={() => go('#/settings')} aria-label="Настройки и синхронизация">
-          <span className={'sync-dot ' + sync.status} aria-hidden />
-          <svg width="18" height="18" viewBox="0 0 9 9" shapeRendering="crispEdges" aria-hidden><path fill="currentColor" d="M3 0h3v1h1v1h1v1h1v3H8v1H7v1H6v1H3V8H2V7H1V6H0V3h1V2h1V1h1zM3 3v3h3V3z" /></svg>
+        <button className="tab" aria-current={route === 'settings' ? 'page' : undefined} onClick={() => go('#/settings')} aria-label="Синхронизация">
+          <span className={'sync-dot ' + sync.status} aria-hidden /><Gear size={16} strokeWidth={1.5} />
         </button>
-      </header>
+      </div></header>
       {route === 'workshop' ? <Workshop go={go} />
         : route === 'deck' ? <Deck go={go} />
         : route === 'settings' ? <Settings />

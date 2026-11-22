@@ -92,10 +92,10 @@ export function Editor({ value, onChange, errorLines = [], file = 'Program.cs', 
 
   return (
     <div className="ide">
-      <div className="ide-head"><span className="dot" /><span className="file">{file}</span><span>C#</span></div>
+      <div className="ide-head"><span className="file-name">{file}</span><span className="kbd-hint">Ctrl/⌘ + Enter — запуск</span></div>
       <div className="cm-host" ref={host} />
       <div className="keys" aria-label="Символы">
-        <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => insert('    ')} aria-label="Отступ">⇥</button>
+        <button type="button" onMouseDown={e => e.preventDefault()} onClick={() => insert('    ')} aria-label="Отступ">tab</button>
         {KEYS.map(k => <button type="button" key={k} onMouseDown={e => e.preventDefault()} onClick={() => insert(k)}>{k}</button>)}
       </div>
     </div>

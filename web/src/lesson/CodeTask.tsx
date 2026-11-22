@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Play, RotateCcw, Check, X as XIcon } from 'lucide-react';
 import type { CodeStep } from '../course/types';
 import { Editor } from '../ui/Editor';
 import { runCSharp, onRunnerState, type RunResult, type RunnerState } from '../runner/runner';
@@ -20,7 +21,7 @@ export function judge(step: CodeStep, code: string, r: RunResult): Verdict | nul
   if (c.output !== undefined && out !== norm(c.output)) return { pass: false, title: 'Вывод не совпал', text: `Нужно: <code>${esc(c.output)}</code><br>Получилось: <code>${esc(out) || '(пусто)'}</code>` };
   if (c.match && !new RegExp(c.match, 's').test(out)) return { pass: false, title: 'Вывод не совпал', text: `Сравни свой вывод с примером в задании. Важна каждая буква, пробел и знак.<br>Получилось: <code>${esc(out) || '(пусто)'}</code>` };
   if (c.lines && out.split('\n').length < c.lines) return { pass: false, title: 'Мало строк', text: `Нужно хотя бы ${c.lines} строк(и) вывода.` };
-  return { pass: true, title: 'Работает!', text: 'Компилятор доволен, вывод правильный.' };
+  return { pass: true, title: 'Работает', text: 'Компилятор доволен, вывод правильный.' };
 }
 
 function esc(s: string) { return s.replace(/[&<>]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[ch]!)); }
@@ -60,14 +61,15 @@ export function CodeTask({ step, onPass }: { step: CodeStep; onPass: () => void 
       <Editor value={code} onChange={setCode} errorLines={errLines} onRun={run} />
       <div className="run-row">
         <button className="btn green" onClick={run} disabled={running || rs === 'loading'}>
-          {rs === 'loading' ? 'Компилятор просыпается…' : running ? 'Запускаю…' : '▶ Запустить'}
+          {rs === 'loading' ? 'Компилятор просыпается…' : running ? 'Запускаю…' : <><Play size={16} strokeWidth={1.75} />Запустить</>}
         </button>
-        <button className="btn ghost small" onClick={() => { setCode(step.start); setRes(null); setVerdict(null); }}>Сбросить</button>
+        <button className="btn ghost" onClick={() => { setCode(step.start); setRes(null); setVerdict(null); }} aria-label="Вернуть стартовый код"><RotateCcw size={16} strokeWidth={1.75} /></button>
       </div>
       {rs === 'loading' && <p className="note">Первый запуск грузит настоящий компилятор C#, это 5–15 секунд. Дальше он работает мгновенно.</p>}
 
       {res && (
         <div className="console" aria-live="polite">
+          <span className="console-label">вывод программы</span>
           {res.output ? res.output : <span className="muted">{res.stage === 'compile' ? 'программа не запустилась' : '(программа ничего не вывела)'}</span>}
         </div>
       )}
@@ -96,7 +98,7 @@ export function CodeTask({ step, onPass }: { step: CodeStep; onPass: () => void 
 
       {verdict && (
         <div className={'verdict ' + (verdict.pass ? 'good' : 'bad')}>
-          <h4>{verdict.title}</h4>
+          <h4>{verdict.pass ? <Check size={16} strokeWidth={2} /> : <XIcon size={16} strokeWidth={2} />}{verdict.title}</h4>
           <div dangerouslySetInnerHTML={{ __html: verdict.text }} />
         </div>
       )}
