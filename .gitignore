@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.work/
+runner/bin/
+runner/obj/
+.DS_Store
