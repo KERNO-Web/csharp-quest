@@ -114,7 +114,7 @@ function StepView({ step, ans, setAns, checked, pool, onCodePass }: {
       return (<>
         <div className="say" dangerouslySetInnerHTML={{ __html: step.text }} />
         {step.code && <CodeView code={step.code} hl={step.hl} />}
-        {Viz && <Viz />}
+        {Viz && <Viz {...(step.vizProps ?? {})} />}
       </>);
     }
     case 'term':

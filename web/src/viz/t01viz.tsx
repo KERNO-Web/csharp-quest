@@ -94,25 +94,38 @@ export function BoxViz() {
 }
 
 /* 4. Анатомия строки int hp = 100; */
-const PARTS = [
+const WRITELINE_PARTS: Part[] = [
+  { t: 'Console', c: 'var(--blue)', name: 'Console', text: 'Консоль — окно, куда программа пишет текст. Это наш «экран».' },
+  { t: '.', c: 'var(--muted)', name: 'Точка', text: '«Возьми у него». Console.WriteLine = «у консоли возьми команду WriteLine».' },
+  { t: 'WriteLine', c: 'var(--yellow)', name: 'WriteLine', text: 'Write — напиши, Line — строку. Пишет текст и переводит курсор на новую строку.' },
+  { t: '(', c: 'var(--muted)', name: 'Скобки', text: 'В скобках то, что отдаём команде. Здесь — что написать.' },
+  { t: '"Привет!"', c: 'var(--peach)', name: 'Текст в кавычках', text: 'Кавычки говорят: это просто текст, напечатай его буква в букву.' },
+  { t: ')', c: 'var(--muted)', name: 'Скобки', text: 'Закрыли скобку: всё, что нужно команде, передали.' },
+  { t: ';', c: 'var(--yellow)', name: 'Точка с запятой', text: 'Конец команды. Как точка в конце предложения.' },
+];
+export const ANATOMY_PRESETS: Record<string, Part[]> = { writeline: WRITELINE_PARTS };
+
+const PARTS: Part[] = [
   { t: 'int', c: 'var(--blue)', name: 'Тип', text: 'Форма коробки. int — только целые числа.' },
   { t: 'hp', c: 'var(--text)', name: 'Имя', text: 'Наклейка на коробке. По этому имени потом достаём значение.' },
   { t: '=', c: 'var(--muted)', name: 'Присваивание', text: '«Положи в». Не «равно»!' },
   { t: '100', c: 'var(--orange)', name: 'Значение', text: 'То, что кладём в коробку.' },
   { t: ';', c: 'var(--yellow)', name: 'Конец команды', text: 'Точка в конце предложения. Без неё компилятор ругается.' },
 ];
-export function AnatomyViz() {
+type Part = { t: string; c: string; name: string; text: string };
+export function AnatomyViz({ parts = PARTS, caption = 'Нажимай на части' }: { parts?: Part[]; caption?: string }) {
   const [sel, setSel] = useState<number | null>(null);
+  const PARTS_ = parts;
   return (
     <div className="viz px">
-      <div className="viz-cap">Нажимай на части</div>
+      <div className="viz-cap">{caption}</div>
       <div className="anat">
-        {PARTS.map((p, i) => (
+        {PARTS_.map((p, i) => (
           <button type="button" key={i} className={'anat-part' + (sel === i ? ' on' : '')} style={{ color: p.c, ['--ac' as any]: p.c }} onClick={() => setSel(i)}>{p.t}</button>
         ))}
       </div>
       <div className="anat-info" key={sel ?? -1}>
-        {sel === null ? <span className="muted">Тут появится объяснение</span> : <><b style={{ color: PARTS[sel].c }}>{PARTS[sel].name}.</b> {PARTS[sel].text}</>}
+        {sel === null ? <span className="muted">Тут появится объяснение</span> : <><b style={{ color: PARTS_[sel].c }}>{PARTS_[sel].name}.</b> {PARTS_[sel].text}</>}
       </div>
     </div>
   );
@@ -155,8 +168,9 @@ export function BossIntroViz() {
   );
 }
 
-export const VIZ: Record<string, () => React.ReactNode> = {
-  recipe: RecipeViz, nest: NestViz, box: BoxViz, anatomy: AnatomyViz, scope: ScopeViz, bossIntro: BossIntroViz,
+export const VIZ: Record<string, (p: any) => React.ReactNode> = {
+  recipe: RecipeViz, nest: NestViz, box: BoxViz, anatomy: AnatomyViz,
+  writeline: () => <AnatomyViz parts={WRITELINE_PARTS} caption="Нажимай на каждую часть команды" />, scope: ScopeViz, bossIntro: BossIntroViz,
 };
 
 export { highlight };
